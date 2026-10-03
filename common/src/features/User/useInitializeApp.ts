@@ -1,5 +1,10 @@
 import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { setAppLoading } from '@common/app/loadingSlice'
+import {
+  getIntentIdFromSearch,
+  isIntentLocation,
+  rememberPendingIntent
+} from '@common/features/Intents/pendingIntent'
 import { Auth } from '@common/features/User/oidcAuth'
 import { getOpenPaasUserData } from '@common/features/User/UserSlice'
 import { getAccessToken, redirectTo } from '@common/utils/apiUtils'
@@ -45,7 +50,19 @@ export const useInitializeApp = (): void => {
         return
       }
 
-      const loginurl = await Auth()
+      const intentId = isIntentLocation(
+        window.location.pathname,
+        window.location.search
+      )
+        ? getIntentIdFromSearch(window.location.search)
+        : null
+      if (intentId) {
+        // An intent frame cannot show a login form: a dead SSO session must
+        // come back as an error, and the callback must return to the intent.
+        rememberPendingIntent(intentId)
+      }
+
+      const loginurl = await Auth(intentId ? { prompt: 'none' } : {})
       sessionStorage.setItem(
         'redirectState',
         JSON.stringify({
