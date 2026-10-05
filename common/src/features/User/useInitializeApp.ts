@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { setAppLoading } from '@common/app/loadingSlice'
+import { prepareIntentLogin } from '@common/features/Intents/pendingIntent'
 import { Auth } from '@common/features/User/oidcAuth'
 import { getOpenPaasUserData } from '@common/features/User/UserSlice'
 import { getAccessToken, redirectTo } from '@common/utils/apiUtils'
@@ -45,7 +46,7 @@ export const useInitializeApp = (): void => {
         return
       }
 
-      const loginurl = await Auth()
+      const loginurl = await Auth(prepareIntentLogin())
       sessionStorage.setItem(
         'redirectState',
         JSON.stringify({
