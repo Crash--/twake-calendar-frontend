@@ -74,5 +74,7 @@ declare global {
     HIDE_THEME_SELECTOR: boolean
 
     PUBLIC_PAGE_BASE: string | undefined
+
+    TWAKE_RAIL: boolean | undefined
   }
 }

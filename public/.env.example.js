@@ -84,3 +84,8 @@ var ENABLE_REFRESH_BUTTON = false
 // user's Cozy when SSO_SCOPE includes workplaceFqdn (or WORKPLACE_FQDN_FALLBACK
 // is set) and the Cozy accepts the application's SSO client for token
 // exchange. Otherwise it shows the apps of appList.js and the SSO user.
+// Shows the Twake navigation rail at the left of the page on desktop, in place
+// of the platform menus of the Twake bar, and serves the HTML with
+// Supports-Loading-Mode: credentialed-prerender so that the other apps of the
+// rail can prerender it. Needs the platform bar above. Defaults to false.
+var TWAKE_RAIL = false

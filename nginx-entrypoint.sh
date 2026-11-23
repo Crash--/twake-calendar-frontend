@@ -1,5 +1,5 @@
 #!/bin/sh
-# Writes the runtime nginx maps (browser cache and frame-ancestors CSP),
+# Writes the runtime nginx maps (browser cache, loading mode and frame-ancestors CSP),
 # then replaces itself with nginx so that nginx runs as PID 1 and receives
 # the stop signals of the container.
 set -e
@@ -17,6 +17,13 @@ else
   echo "Production mode detected. Enabling Nginx browser cache."
 fi
 
+# The HTML opts in to being prerendered by the browser when the navigation rail
+# is on: the other apps of the rail prerender it, signed in
+supports_loading_mode='default ""'
+if [ -f "$ENV_JS" ] && grep -q -E '^\s*(var\s+)?TWAKE_RAIL\s*=\s*true' "$ENV_JS"; then
+  supports_loading_mode='"~*\.html$" "credentialed-prerender"; default ""'
+fi
+
 default_frame_ancestors="'self'"
 frame_ancestors="${FRAME_ANCESTORS:-$default_frame_ancestors}"
 
@@ -31,6 +38,7 @@ fi
 cat > "$CACHE_ENV_CONF" <<EOF
 map \$uri \$static_cache_control { default "$static_cache_control"; }
 map \$uri \$html_cache_control { default "$html_cache_control"; }
+map \$uri \$supports_loading_mode { $supports_loading_mode; }
 $frame_ancestors_map
 EOF
 
