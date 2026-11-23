@@ -76,5 +76,7 @@ declare global {
     PUBLIC_PAGE_BASE: string | undefined
 
     TWAKE_RAIL: boolean | undefined
+    /** Registry slugs of the apps the rail prerenders on hover */
+    TWAKE_RAIL_PRERENDER: string[] | undefined
   }
 }

@@ -176,6 +176,22 @@ describe('TwakeBarHeader', () => {
       expect(getRailWidth()).toBe('4rem')
     })
 
+    it('prerenders the apps of TWAKE_RAIL_PRERENDER, none without it', () => {
+      window.TWAKE_RAIL = true
+      setDesktop()
+      renderBar()
+      expect(mockTwakeRail).toHaveBeenLastCalledWith(
+        expect.objectContaining({ prerender: [] })
+      )
+
+      window.TWAKE_RAIL_PRERENDER = ['mail', 'project']
+      renderBar()
+      expect(mockTwakeRail).toHaveBeenLastCalledWith(
+        expect.objectContaining({ prerender: ['mail', 'project'] })
+      )
+      window.TWAKE_RAIL_PRERENDER = undefined
+    })
+
     it('shows no rail without TWAKE_RAIL', () => {
       setDesktop()
       renderBar()

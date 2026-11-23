@@ -89,3 +89,6 @@ var ENABLE_REFRESH_BUTTON = false
 // Supports-Loading-Mode: credentialed-prerender so that the other apps of the
 // rail can prerender it. Needs the platform bar above. Defaults to false.
 var TWAKE_RAIL = false
+// Registry slugs of the apps the rail prerenders when the pointer rests on
+// them (Chrome, Edge), only apps whose HTML opts in. Defaults to none.
+var TWAKE_RAIL_PRERENDER = []

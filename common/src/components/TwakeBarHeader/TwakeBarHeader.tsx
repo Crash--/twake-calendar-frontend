@@ -120,7 +120,11 @@ export const TwakeBarHeader = (): React.JSX.Element | null => {
     <SdkProvider client={sdk}>
       {withRail && (
         <div id="twake-rail">
-          <TwakeRail current="calendar" onLogOut={handleLogOut} />
+          <TwakeRail
+            current="calendar"
+            prerender={window.TWAKE_RAIL_PRERENDER ?? []}
+            onLogOut={handleLogOut}
+          />
         </div>
       )}
       {bar}
