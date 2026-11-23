@@ -1,9 +1,12 @@
 import {
   SdkProvider,
   TWAKE_BAR_HEIGHT,
+  TWAKE_RAIL_WIDTH,
   TwakeBar,
+  TwakeRail,
   type TwakeBarFallback
 } from '@linagora/twake-bar'
+import { useMediaQuery, useTheme } from '@linagora/twake-mui'
 import { logOut } from '@linagora/twake-oidc'
 import React, { useLayoutEffect, useMemo } from 'react'
 import type { RootState } from '@common/app/store'
@@ -27,6 +30,14 @@ const setBarHeight = (height: string | null): void => {
   }
 }
 
+const setRailWidth = (width: string | null): void => {
+  if (width) {
+    document.documentElement.style.setProperty('--twake-rail-width', width)
+  } else {
+    document.documentElement.style.removeProperty('--twake-rail-width')
+  }
+}
+
 const BAR_APP = {
   slug: 'calendar',
   name: 'Twake Calendar',
@@ -45,12 +56,17 @@ const handleLogOut = (): void => void logOut()
  * The bar shows the platform session, which calendar signs in at load.
  * Without a platform, or when the token exchange fails, it shows calendar's
  * apps and user instead.
+ *
+ * With TWAKE_RAIL on, desktop and a platform, the navigation rail of the apps
+ * is pinned at the left, and the bar leaves the platform menus to it.
  */
 export const TwakeBarHeader = (): React.JSX.Element | null => {
   const isAppLoading = useAppSelector(selectIsAppLoading)
   const platformURL = useAppSelector(selectPlatformURL)
   const user = useAppSelector(selectUser)
   const isShown = twakeSpace === null && !isAppLoading
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
 
   const fallback = useMemo<TwakeBarFallback>(
     () => ({
@@ -76,16 +92,38 @@ export const TwakeBarHeader = (): React.JSX.Element | null => {
     return (): void => setBarHeight(null)
   }, [isShown])
 
+  const sdk = isShown && platformURL ? getPlatformSdk(platformURL) : null
+  const withRail = isDesktop && window.TWAKE_RAIL === true && !!sdk
+
+  useLayoutEffect(() => {
+    if (!withRail) return
+    setRailWidth(TWAKE_RAIL_WIDTH)
+    return (): void => setRailWidth(null)
+  }, [withRail])
+
   if (!isShown) return null
 
-  const sdk = platformURL ? getPlatformSdk(platformURL) : null
   const bar = (
-    <TwakeBar app={BAR_APP} onLogOut={handleLogOut} fallback={fallback} />
+    <div id="twake-bar">
+      <TwakeBar
+        app={BAR_APP}
+        onLogOut={handleLogOut}
+        fallback={fallback}
+        withMenus={!withRail}
+      />
+    </div>
   )
 
+  if (!sdk) return bar
+
   return (
-    <div id="twake-bar">
-      {sdk ? <SdkProvider client={sdk}>{bar}</SdkProvider> : bar}
-    </div>
+    <SdkProvider client={sdk}>
+      {withRail && (
+        <div id="twake-rail">
+          <TwakeRail current="calendar" onLogOut={handleLogOut} />
+        </div>
+      )}
+      {bar}
+    </SdkProvider>
   )
 }

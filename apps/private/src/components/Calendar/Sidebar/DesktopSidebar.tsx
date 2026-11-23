@@ -30,6 +30,7 @@ export const DesktopSidebar: React.FC<CalendarSidebarProps> = ({
           paddingLeft: 3,
           paddingRight: 2,
           width: '270px',
+          left: 'var(--twake-rail-width, 0px)',
           marginTop: 'calc(8px + var(--twake-bar-height, 0px))',
           height: 'calc(100% - 8px - var(--twake-bar-height, 0px))'
         },

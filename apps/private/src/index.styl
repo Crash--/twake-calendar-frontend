@@ -3,6 +3,8 @@ body
   // Height of the Twake bar, set on :root when the bar is mounted. No default
   // on :root: minified, 0px becomes 0, which is invalid in calc()
   padding-top var(--twake-bar-height, 0px)
+  // Width of the navigation rail, set on :root when the rail is mounted
+  padding-left var(--twake-rail-width, 0px)
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
 
@@ -15,7 +17,16 @@ code
 #twake-bar
   position fixed
   top 0
-  left 0
-  width 100%
+  left var(--twake-rail-width, 0px)
+  width calc(100% - var(--twake-rail-width, 0px))
   height var(--twake-bar-height, 0px)
+  z-index 1150
+
+// The navigation rail is pinned at the left of the page, like the bar
+#twake-rail
+  position fixed
+  top 0
+  left 0
+  height 100%
+  width var(--twake-rail-width, 0px)
   z-index 1150

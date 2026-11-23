@@ -17,3 +17,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: Crash-- (CTO), go of 2026-11-23 for the test of the navigation rail across pages
 - Why: `no-store` on the document blocks the back-forward cache of the browser, and the document is revalidated on every load with `no-cache` all the same. Nothing in the history of the line documents a need for `no-store`: it came with the nginx cache split of the build optimization (#949), next to the immutable static assets.
 - Scope: `nginx-entrypoint.sh`, the private and public images.
+
+## 2026-11-23, [UX] Navigation rail behind TWAKE_RAIL, off by default
+
+- Decision: with the runtime setting `TWAKE_RAIL` on, on desktop (md and up) and on a platform, a vertical rail of the Twake apps is pinned at the left of Calendar and the Twake bar leaves the platform menus to it. Off by default; small screens keep the bar and its menus. Moving between apps stays a real page navigation.
+- Decided by: Crash-- (CTO), go of 2026-11-23 for the test of the navigation rail across pages
+- Why: the rail is the navigation of the Twake Workplace mockup, and it is tested across the apps before it becomes the default.
+- Scope: `apps/private`, `common`, the private image (`TWAKE_RAIL` in `.env.js`).
