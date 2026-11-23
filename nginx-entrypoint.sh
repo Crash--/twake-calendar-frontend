@@ -13,7 +13,7 @@ if [ -f "$ENV_JS" ] && grep -q -E 'DEBUG\s*=\s*true' "$ENV_JS"; then
   echo "Debug mode detected. Disabling Nginx browser cache."
 else
   static_cache_control='public, max-age=31536000, immutable'
-  html_cache_control='no-store, no-cache, must-revalidate, proxy-revalidate'
+  html_cache_control='no-cache'
   echo "Production mode detected. Enabling Nginx browser cache."
 fi
 
