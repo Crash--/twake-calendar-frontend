@@ -21,12 +21,13 @@ import { getEffectiveEmail } from '@common/utils/getEffectiveEmail'
 import { isEventOrganiser } from '@common/utils/isEventOrganiser'
 import { normalizeIdentity } from '@common/utils/normalizeIdentity'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
+import {
+  isMaskedClassification,
+  isOwnCalendar
+} from '@common/utils/privateEventDetails'
 import { useMemo, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { useEventUpdateModalReopen } from './useEventUpdateModalReopen'
-
-const isMaskedClassification = (classification?: string): boolean =>
-  classification === 'PRIVATE' || classification === 'CONFIDENTIAL'
 
 interface StoredEventReopenData {
   eventId: string
@@ -153,7 +154,7 @@ export function useEventPreviewState(
 
   // Derived access flags
   const isRecurring = event?.uid?.includes('/') ?? false
-  const isOwn = calendar?.owner?.emails?.includes(user?.email ?? '') ?? false
+  const isOwn = isOwnCalendar(calendar, user?.email)
   const isDelegated = calendar?.delegated
   const isWriteDelegated = (isDelegated && calendar?.access?.write) ?? false
   const effectiveEmail = user

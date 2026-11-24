@@ -25,6 +25,7 @@ import {
   eventAccessibleLabel,
   ownAnswer
 } from '@common/components/Event/utils/eventAccessibleLabel'
+import { showsEventDetails } from '@common/utils/privateEventDetails'
 
 interface DesktopResultItemProps {
   eventData: SearchEventResult
@@ -49,6 +50,7 @@ export default function DesktopResultItem({
       ]
   )
   const userId = useAppSelector(state => state.user.userData?.openpaasId)
+  const userEmail = useAppSelector(state => state.user.userData?.email)
 
   const { openPreview, setOpenPreview, handleOpen, timeZone } = useEventPreview(
     eventData,
@@ -90,6 +92,11 @@ export default function DesktopResultItem({
           timeZone={timeZone}
           hasDetails={hasDetails}
           hasVideo={hasVideo}
+          showDetails={showsEventDetails(
+            eventData.data.class,
+            calendar,
+            userEmail
+          )}
         />
       </Box>
 
@@ -111,6 +118,7 @@ interface DesktopResultColumnsProps extends DesktopResultItemProps {
   endDate: Date
   calendarColor: string
   timeZone: string
+  showDetails: boolean
 }
 
 function DesktopResultColumns({
@@ -120,7 +128,8 @@ function DesktopResultColumns({
   calendarColor,
   timeZone,
   hasDetails,
-  hasVideo
+  hasVideo,
+  showDetails
 }: DesktopResultColumnsProps): JSX.Element {
   const { t } = useI18n()
   const allDay = !!eventData.data.allDay
@@ -156,8 +165,12 @@ function DesktopResultColumns({
       </Box>
       {hasDetails && (
         <Box sx={secondaryColumnsSx}>
-          <RenderLocation text={eventData.data.location} />
-          <RenderDescription text={eventData.data.description} />
+          {showDetails && (
+            <>
+              <RenderLocation text={eventData.data.location} />
+              <RenderDescription text={eventData.data.description} />
+            </>
+          )}
         </Box>
       )}
       {hasVideo && (

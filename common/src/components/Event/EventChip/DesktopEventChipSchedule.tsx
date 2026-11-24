@@ -8,6 +8,7 @@ import { CalendarEvent } from '@common/types/EventsTypes'
 import { useI18n } from 'twake-i18n'
 import { useAppSelector } from '@common/app/hooks'
 import { getEffectiveColor } from './EventChipUtils'
+import { showsEventDetails } from '@common/utils/privateEventDetails'
 import {
   RenderOrganizer,
   RenderVideoJoin,
@@ -42,7 +43,11 @@ export const DesktopEventChipSchedule: React.FC<
   const theme = useTheme()
   const ext = arg.event.extendedProps as CalendarEvent
   const calendarColor = useScheduleCalendarColor(arg, ext.calId)
-  const { hasDetails, hasVideo, gridTemplateColumns } = getScheduleColumns(arg)
+  const showsDetailsOf = useShowsDetailsOf()
+  const { hasDetails, hasVideo, gridTemplateColumns } = getScheduleColumns(
+    arg,
+    showsDetailsOf
+  )
   const startDate = arg.event.start || new Date()
   const endDate = arg.event.end || startDate
 
@@ -81,8 +86,12 @@ export const DesktopEventChipSchedule: React.FC<
       </Box>
       {hasDetails && (
         <Box sx={secondaryColumnsSx}>
-          <RenderLocation text={ext.location} />
-          <RenderDescription text={ext.description} />
+          {showsDetailsOf(arg.event.extendedProps) && (
+            <>
+              <RenderLocation text={ext.location} />
+              <RenderDescription text={ext.description} />
+            </>
+          )}
         </Box>
       )}
       {hasVideo && (
@@ -117,9 +126,24 @@ const useScheduleCalendarColor = (
   ).light
 }
 
+type ShowsDetailsOf = (extendedProps: Record<string, unknown>) => boolean
+
+const useShowsDetailsOf = (): ShowsDetailsOf => {
+  const calendars = useAppSelector(state => state.calendars.list)
+  const tempcalendars = useAppSelector(state => state.calendars.templist)
+  const userEmail = useAppSelector(state => state.user.userData?.email)
+  return props =>
+    showsEventDetails(
+      props.class as string | undefined,
+      (props.temp ? tempcalendars : calendars)[props.calId as string],
+      userEmail
+    )
+}
+
 // Use the same tracks for every event in the displayed schedule range.
 const getScheduleColumns = (
-  arg: EventDisplayInfo
+  arg: EventDisplayInfo,
+  showsDetailsOf: ShowsDetailsOf
 ): {
   hasDetails: boolean
   hasVideo: boolean
@@ -129,7 +153,9 @@ const getScheduleColumns = (
     .getEvents()
     .filter(e => isVisibleInRange(e, arg.view.activeStart, arg.view.activeEnd))
   const hasDetails = visibleEvents.some(
-    e => e.extendedProps.location || e.extendedProps.description
+    e =>
+      showsDetailsOf(e.extendedProps) &&
+      (e.extendedProps.location || e.extendedProps.description)
   )
   const hasVideo = visibleEvents.some(
     e => e.extendedProps.x_openpass_videoconference

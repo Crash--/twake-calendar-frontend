@@ -28,9 +28,11 @@ import {
 import { userAttendee } from '@common/features/User/models/attendee'
 import { getCalendarOwnerAttendee } from '@common/utils/getCalendarOwnerAttendee'
 import { EventDescriptionBuilder } from '@common/utils/EventDescriptionBuilder'
+import {
+  isMaskedClassification,
+  showsEventDetails
+} from '@common/utils/privateEventDetails'
 import { BookingLinkEventChip } from './BookingLinkEventChip'
-
-const PRIVATE_CLASSIFICATIONS = ['PRIVATE', 'CONFIDENTIAL']
 
 export const EVENT_DURATION = {
   SHORT: 15,
@@ -46,6 +48,7 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
 
   const calendars = useAppSelector(state => state.calendars.list)
   const tempcalendars = useAppSelector(state => state.calendars.templist)
+  const userEmail = useAppSelector(state => state.user.userData?.email)
 
   const event = arg.event
   const props = event._def.extendedProps
@@ -93,7 +96,12 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
     if (!calendar) return null
 
     // Event properties
-    const isPrivate = PRIVATE_CLASSIFICATIONS.includes(classification as string)
+    const isPrivate = isMaskedClassification(classification as string)
+    const showDetails = showsEventDetails(
+      classification as string,
+      calendar,
+      userEmail
+    )
     const organizer = props.organizer as
       { cn?: string; cal_address?: string } | undefined
 
@@ -254,6 +262,7 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
           }
         />
         {isMoreThan60 &&
+          showDetails &&
           !showCompact &&
           !isMonthView &&
           !event._def.extendedProps.allday && (
